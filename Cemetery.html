@@ -6,6 +6,18 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<style>
+		  .image-container {
+		    display: flex;
+		    justify-content: space-between;
+		  }
+		
+		  .image {
+		    flex: 0 0 30%; /* Adjust the width of each image */
+		    margin: 10px;
+		    max-width: 100%;
+		  }
+		</style>
 	</head>
 	<body class="is-preload">
 
@@ -13,7 +25,11 @@
 			<section id="header" class="dark">
 				<header>
 					<h1>Here are my projects</h1>
-					
+					<div class="image-container">
+					  <img class="image" src="images/Entrance.png" alt="Image 1">
+					  <img class="image" src="images/top.png" alt="Image 2">
+					  <img class="image" src="images/Graves.png" alt="Image 3">
+					</div>
 				</header>
 				<footer>
 					<a href="https://bado19.github.io/index.html" class="button scrolly">Home</a>
