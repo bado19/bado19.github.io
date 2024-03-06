@@ -185,6 +185,9 @@ input, select, textarea {
 		top: -0.5em;
 		font-size: 0.8em;
 	}
+	.education {
+		text-align:"left";
+	}
 
 	hr {
 		border: 0;
