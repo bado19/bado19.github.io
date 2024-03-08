@@ -1,17 +1,17 @@
 async function init() {
+    const canvas = document.getElementById('canvas');
+    
     const adapter = await navigator.gpu.requestAdapter();
     const device = await adapter.requestDevice();
 
-    // Create a canvas and configure WebGPU context
-    const canvas = document.getElementById('canvas');
     const context = canvas.getContext('gpupresent');
 
+    const swapChainFormat = 'bgra8unorm';
     const swapChain = context.configureSwapChain({
         device,
-        format: 'bgra8unorm'
+        format: swapChainFormat
     });
 
-    // Vertex shader code
     const vertexShaderModule = device.createShaderModule({
         code: `
             [[stage(vertex)]]
@@ -20,16 +20,14 @@ async function init() {
             }`
     });
 
-    // Fragment shader code
     const fragmentShaderModule = device.createShaderModule({
         code: `
             [[stage(fragment)]]
             fn main() -> [[location(0)]] vec4<f32> {
-                return vec4<f32>(1.0, 0.0, 0.0, 1.0); // Red color
+                return vec4<f32>(1.0, 0.0, 0.0, 1.0);
             }`
     });
 
-    // Define the render pipeline
     const pipeline = device.createRenderPipeline({
         vertex: {
             module: vertexShaderModule,
@@ -39,7 +37,7 @@ async function init() {
             module: fragmentShaderModule,
             entryPoint: 'main',
             targets: [{
-                format: 'bgra8unorm'
+                format: swapChainFormat
             }]
         },
         primitive: {
@@ -47,34 +45,22 @@ async function init() {
         }
     });
 
-    // Create a command encoder
     const commandEncoder = device.createCommandEncoder();
-
-    // Get the current texture from the swap chain
     const textureView = swapChain.getCurrentTexture().createView();
 
-    // Define render pass descriptor
     const renderPassDescriptor = {
         colorAttachments: [{
             view: textureView,
-            loadValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }, // Clear color to black
+            loadValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
             storeOp: 'store'
         }]
     };
 
-    // Begin render pass
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-
-    // Set the pipeline for the render pass
     passEncoder.setPipeline(pipeline);
-
-    // Draw the triangle
     passEncoder.draw(3, 1, 0, 0);
-
-    // End render pass
     passEncoder.endPass();
 
-    // Submit the command encoder
     device.queue.submit([commandEncoder.finish()]);
 }
 
