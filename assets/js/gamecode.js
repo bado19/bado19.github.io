@@ -1,134 +1,180 @@
+ // Vertex shader program
+ const vsSource = `
+ attribute vec4 aVertexPosition;
 
-// Vertex shader program
-const vsSource = `
-    attribute vec4 aVertexPosition;
+ uniform mat4 uModelViewMatrix;
+ uniform mat4 uProjectionMatrix;
 
-    void main() {
-        gl_Position = aVertexPosition;
-    }
+ void main() {
+     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+ }
 `;
 
 // Fragment shader program
 const fsSource = `
-    void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
+ void main() {
+     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+ }
 `;
 
 function initShaderProgram(gl, vsSource, fsSource) {
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+ const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+ const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
+ const shaderProgram = gl.createProgram();
+ gl.attachShader(shaderProgram, vertexShader);
+ gl.attachShader(shaderProgram, fragmentShader);
+ gl.linkProgram(shaderProgram);
 
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
-        return null;
-    }
+ if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+     console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+     return null;
+ }
 
-    return shaderProgram;
+ return shaderProgram;
 }
 
 function loadShader(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
+ const shader = gl.createShader(type);
+ gl.shaderSource(shader, source);
+ gl.compileShader(shader);
 
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
-    }
+ if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+     console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+     gl.deleteShader(shader);
+     return null;
+ }
 
-    return shader;
+ return shader;
 }
 
 function initBuffers(gl) {
-    const positions = [
-        // Add your points here
-        // Example:
-        -0.5,  0.5,
-        -0.5, -0.5,
-         1,  0.5,
-         0.5, -0.5,
-    ];
+ const positions = [
+     // Base of the pyramid
+     -0.5, -0.5,  0.5,
+      0.5, -0.5,  0.5,
+      0.5, -0.5, -0.5,
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+     -0.5, -0.5,  0.5,
+      0.5, -0.5, -0.5,
+     -0.5, -0.5, -0.5,
 
-    const numVertices = positions.length / 2; // Calculate number of vertices
+     // Front face
+     -0.5, -0.5,  0.5,
+      0.5, -0.5,  0.5,
+      0.0,  0.5,  0.0,
 
-    return {
-        position: positionBuffer,
-        numVertices: numVertices
-    };
+     // Right face
+      0.5, -0.5,  0.5,
+      0.5, -0.5, -0.5,
+      0.0,  0.5,  0.0,
+
+     // Back face
+      0.5, -0.5, -0.5,
+     -0.5, -0.5, -0.5,
+      0.0,  0.5,  0.0,
+
+     // Left face
+     -0.5, -0.5, -0.5,
+     -0.5, -0.5,  0.5,
+      0.0,  0.5,  0.0,
+ ];
+
+ const positionBuffer = gl.createBuffer();
+ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+ const numVertices = positions.length / 3; // Calculate number of vertices (each vertex has 3 components)
+
+ return {
+     position: positionBuffer,
+     numVertices: numVertices
+ };
 }
 
+function drawScene(gl, programInfo, buffers, position) {
+ gl.clearColor(0.0, 0.0, 0.0, 1.0);
+ gl.clearDepth(1.0);
+ gl.enable(gl.DEPTH_TEST);
+ gl.depthFunc(gl.LEQUAL);
 
+ gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-function drawScene(gl, programInfo, buffers) {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clearDepth(1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
+ const projectionMatrix = mat4.create();
+ mat4.perspective(projectionMatrix, Math.PI / 4, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
 
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+ const modelViewMatrix = mat4.create();
+ mat4.translate(modelViewMatrix, modelViewMatrix, position);
 
-    const projectionMatrix = mat4.create();
-    mat4.ortho(projectionMatrix, -1, 1, -1, 1, 0.1, 100.0);
+ gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+ gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+ gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
-    const modelViewMatrix = mat4.create();
-    mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
+ gl.useProgram(programInfo.program);
+ gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+ gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-    gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-
-    gl.useProgram(programInfo.program);
-    gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
-    gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
-
-    const vertexCount = buffers.numVertices; // Number of vertices for a quad (2 triangles)
-    gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+ const vertexCount = buffers.numVertices; // Number of vertices for the pyramid
+ gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 }
-
-
-
 
 function main() {
-    const canvas = document.querySelector('#glCanvas');
-    const gl = canvas.getContext('webgl');
+ const canvas = document.querySelector('#glCanvas');
+ const gl = canvas.getContext('webgl');
 
-    if (!gl) {
-        console.error('Unable to initialize WebGL. Your browser may not support it.');
-        return;
-    }
+ if (!gl) {
+     console.error('Unable to initialize WebGL. Your browser may not support it.');
+     return;
+ }
 
-    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+ const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-    const programInfo = {
-        program: shaderProgram,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-        },
-        uniformLocations: {
-            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-        },
-    };
+ const programInfo = {
+     program: shaderProgram,
+     attribLocations: {
+         vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+     },
+     uniformLocations: {
+         projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+         modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+     },
+ };
 
-    const buffers = initBuffers(gl);
+ const buffers = initBuffers(gl);
 
-    function render() {
-        drawScene(gl, programInfo, buffers);
-        requestAnimationFrame(render);
-    }
+ // Initialize position
+ let position = [0.0, 0.0, -5.0];
 
-    render();
+ // Function to update pyramid position
+ function updatePosition(key) {
+     switch (key) {
+         case 'ArrowUp':
+             position[1] += 0.1; // Move up
+             break;
+         case 'ArrowDown':
+             position[1] -= 0.1; // Move down
+             break;
+         case 'ArrowLeft':
+             position[0] -= 0.1; // Move left
+             break;
+         case 'ArrowRight':
+             position[0] += 0.1; // Move right
+             break;
+     }
+ }
+
+ // Event listener for key presses
+ document.addEventListener('keydown', (event) => {
+     updatePosition(event.key);
+     drawScene(gl, programInfo, buffers, position);
+ });
+
+ function render() {
+     drawScene(gl, programInfo, buffers, position);
+     requestAnimationFrame(render);
+ }
+
+ render();
 }
 
 window.onload = main;
