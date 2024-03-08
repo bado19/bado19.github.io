@@ -112,7 +112,7 @@ function terrain(gl) {
     };
 }
 
-function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position) {
+function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position, rotation) {
  gl.clearColor(0.0, 0.0, 0.0, 1.0);
  gl.clearDepth(1.0);
  gl.enable(gl.DEPTH_TEST);
@@ -125,6 +125,9 @@ function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position) {
 
  const modelViewMatrix = mat4.create();
  mat4.translate(modelViewMatrix, modelViewMatrix, position);
+
+ // Apply rotation to the modelViewMatrix
+ mat4.rotate(modelViewMatrix, modelViewMatrix, rotation, [0, 1, 0]);
 
  // Draw the pyramid
  gl.bindBuffer(gl.ARRAY_BUFFER, pyramidBuffers.position);
@@ -151,6 +154,10 @@ function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position) {
  gl.drawArrays(gl.TRIANGLES, 0, terrainVertexCount);
 }
 
+let anima = 1;
+let requestId;
+let rot=0;
+
 function main() {
  const canvas = document.querySelector('#glCanvas');
  const gl = canvas.getContext('webgl');
@@ -176,8 +183,9 @@ function main() {
  const pyramidBuffers = initBuffers(gl);
  const terrainBuffers = terrain(gl);
 
- // Initialize position
+ // Initialize position and rotation
  let position = [0.0, 0.0, -5.0];
+ let rotation = 0;
 
  // Function to update pyramid position
  function updatePosition(key) {
@@ -194,21 +202,48 @@ function main() {
          case 'ArrowRight':
              position[0] += 0.1; // Move right
              break;
+        case 'p':
+            anima = (anima + 1) % 2; // Toggle animation
+            if (anima === 1) {
+                animate();
+            } else {
+                cancelAnimationFrame(requestId);
+            }
+            break;
+        case 'e':
+            rot-=0.001;
+            break;
+        case 'r':
+            rot+=0.001;
+            break;
+
      }
+ }
+
+ // Function to animate pyramid spinning
+ function animate() {
+     rotation += rot;
+     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position, rotation);
+     requestId = requestAnimationFrame(animate);
  }
 
  // Event listener for key presses
  document.addEventListener('keydown', (event) => {
      updatePosition(event.key);
-     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position);
  });
 
  function render() {
-     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position);
-     requestAnimationFrame(render);
+     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position, rotation);
+     if (anima === 1) {
+         requestId = requestAnimationFrame(render);
+     }
  }
 
- render();
+ if (anima === 1) {
+     animate();
+ } 
+    render();
+
 }
 
 window.onload = main;
