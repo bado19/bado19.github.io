@@ -4,6 +4,7 @@ async function init() {
     const adapter = await navigator.gpu.requestAdapter();
     const device = await adapter.requestDevice();
 
+    // Use 'gpupresent' as the context type
     const context = canvas.getContext('gpupresent');
 
     const swapChainFormat = 'bgra8unorm';
