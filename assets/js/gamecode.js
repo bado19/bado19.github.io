@@ -210,13 +210,15 @@ function main() {
                 cancelAnimationFrame(requestId);
             }
             break;
-        case 'e':
-            rot-=0.001;
-            break;
-        case 'r':
-            rot+=0.001;
-            break;
 
+            case 'e':
+                rot-=0.001;
+                break;
+            case 'r':
+                rot+=0.001;
+                break;
+    
+         
      }
  }
 
@@ -241,9 +243,9 @@ function main() {
 
  if (anima === 1) {
      animate();
- } 
-    render();
-
+ } else {
+     render();
+ }
 }
 
 window.onload = main;
