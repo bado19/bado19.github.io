@@ -1,3 +1,4 @@
+
 // Vertex shader program
 const vsSource = `
     attribute vec4 aVertexPosition;
@@ -47,19 +48,27 @@ function loadShader(gl, type, source) {
 
 function initBuffers(gl) {
     const positions = [
-        0.0,  0.5,
-       -0.5, -0.5,
-        0.5, -0.5
+        // Add your points here
+        // Example:
+        -0.5,  0.5,
+        -0.5, -0.5,
+         1,  0.5,
+         0.5, -0.5,
     ];
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
+    const numVertices = positions.length / 2; // Calculate number of vertices
+
     return {
-        position: positionBuffer
+        position: positionBuffer,
+        numVertices: numVertices
     };
 }
+
+
 
 function drawScene(gl, programInfo, buffers) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -83,9 +92,12 @@ function drawScene(gl, programInfo, buffers) {
     gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
     gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
-    const vertexCount = 3;
+    const vertexCount = buffers.numVertices; // Number of vertices for a quad (2 triangles)
     gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 }
+
+
+
 
 function main() {
     const canvas = document.querySelector('#glCanvas');
