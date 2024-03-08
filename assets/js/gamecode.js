@@ -156,7 +156,7 @@ function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position, ro
 
 let anima = 1;
 let requestId;
-let rot=0;
+let rot=0.01;
 
 function main() {
  const canvas = document.querySelector('#glCanvas');
