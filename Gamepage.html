@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>WebGPU Hello World</title>
-    <script type="module" src="assets/js/gamecode.js"></script>
+    <meta charset="UTF-8">
+    <title>WebGL Hello World</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+    <script src="assets/js/gamecode.js" defer></script>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
 </head>
 <body>
-    <canvas id="canvas" width="400" height="400"></canvas>
+    <canvas id="glCanvas" width="800" height="600"></canvas>
 </body>
 </html>
