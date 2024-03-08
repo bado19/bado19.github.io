@@ -1,5 +1,5 @@
- // Vertex shader program
- const vsSource = `
+// Vertex shader program
+const vsSource = `
  attribute vec4 aVertexPosition;
 
  uniform mat4 uModelViewMatrix;
@@ -16,7 +16,6 @@ const fsSource = `
      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
  }
 `;
-
 
 function initShaderProgram(gl, vsSource, fsSource) {
  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
@@ -93,7 +92,27 @@ function initBuffers(gl) {
  };
 }
 
-function drawScene(gl, programInfo, buffers, position) {
+function terrain(gl) {
+    const positions = [
+        1.0, 0.0, 1.0,
+        0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.0 ,0.0 ,1.0,
+    ];
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    const numVertices = positions.length / 3; // Calculate number of vertices (each vertex has 3 components)
+
+    return {
+        position: positionBuffer,
+        numVertices: numVertices
+    };
+}
+
+function drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position) {
  gl.clearColor(0.0, 0.0, 0.0, 1.0);
  gl.clearDepth(1.0);
  gl.enable(gl.DEPTH_TEST);
@@ -107,7 +126,8 @@ function drawScene(gl, programInfo, buffers, position) {
  const modelViewMatrix = mat4.create();
  mat4.translate(modelViewMatrix, modelViewMatrix, position);
 
- gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+ // Draw the pyramid
+ gl.bindBuffer(gl.ARRAY_BUFFER, pyramidBuffers.position);
  gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
  gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
@@ -115,8 +135,20 @@ function drawScene(gl, programInfo, buffers, position) {
  gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
  gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
- const vertexCount = buffers.numVertices; // Number of vertices for the pyramid
- gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+ const pyramidVertexCount = pyramidBuffers.numVertices;
+ gl.drawArrays(gl.TRIANGLES, 0, pyramidVertexCount);
+
+ // Draw the terrain
+ gl.bindBuffer(gl.ARRAY_BUFFER, terrainBuffers.position);
+ gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+ gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+ gl.useProgram(programInfo.program);
+ gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+ gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+
+ const terrainVertexCount = terrainBuffers.numVertices;
+ gl.drawArrays(gl.TRIANGLES, 0, terrainVertexCount);
 }
 
 function main() {
@@ -141,7 +173,8 @@ function main() {
      },
  };
 
- const buffers = initBuffers(gl);
+ const pyramidBuffers = initBuffers(gl);
+ const terrainBuffers = terrain(gl);
 
  // Initialize position
  let position = [0.0, 0.0, -5.0];
@@ -167,11 +200,11 @@ function main() {
  // Event listener for key presses
  document.addEventListener('keydown', (event) => {
      updatePosition(event.key);
-     drawScene(gl, programInfo, buffers, position);
+     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position);
  });
 
  function render() {
-     drawScene(gl, programInfo, buffers, position);
+     drawScene(gl, programInfo, pyramidBuffers, terrainBuffers, position);
      requestAnimationFrame(render);
  }
 

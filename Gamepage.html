@@ -7,10 +7,14 @@
     <script src="assets/js/gamecode.js" defer></script>
     <style>
         body { margin: 0; }
-        canvas { display: block; }
+        canvas { 
+            display: block; 
+            width: 95vw; /* 100% of viewport width */
+            height: 95vh; /* 100% of viewport height */
+        }
     </style>
 </head>
 <body>
-    <canvas id="glCanvas" width="800" height="600"></canvas>
+    <canvas id="glCanvas"></canvas>
 </body>
 </html>
