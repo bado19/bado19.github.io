@@ -29,16 +29,16 @@
         <a href="https://bado19.github.io/Gamepage.html" class="button scrolly">WebGL testing</a>
     </div>
 	<div id="toggleButtonid">
-		<button id="sidebarToggle" class="openbtn" onclick="toggleSidebar()">&#9776; Open Sidebar</button>
+		<button id="sidebarToggle" class="openbtn" onclick="toggleSidebar()">&#9776;</button>
 
 	</div>
 </section>
     <div id="main">
     </div>
 
-    <footer>
-        <canvas id="glCanvas"></canvas>
-    </footer>
+    <div id="glindex">
+        <canvas id="glCanvas" ></canvas>
+        </div>
 
 
 
@@ -52,9 +52,21 @@
 </section>
 
 <!-- Scripts -->
+<footer>
+
+</footer>
+<style>
+    #glindex { margin: 90; }
+    canvas { 
+        display: block; 
+        width: 50vw; /* 100% of viewport width */
+        height: 50vh; /* 100% of viewport height */
+    }
+</style>
 <script src="assets/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
 <script src="assets/js/Sidebar.js"></script>
-<script src="assets/js/gamecode.js" defer></script>
+<script src="assets/js/GLmainpage.js"  ></script>
 <script src="assets/js/jquery.scrolly.min.js"></script>
 <script src="assets/js/browser.min.js"></script>
 <script src="assets/js/breakpoints.min.js"></script>
