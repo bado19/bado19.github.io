@@ -120,7 +120,7 @@ function createPyramid(position) {
     return {
         type: 'pyramid',
         position: position,
-        link: 'https://example.com/pyramid-link' // Add link property if needed
+        link: '' // Add link property if needed
     };
 }
 
@@ -130,7 +130,7 @@ function createTerrain(position, size) {
         type: 'terrain',
         position: position,
         size: size,
-        link: 'https://example.com/terrain-link' // Add link property if needed
+        link: '' // Add link property if needed
     };
 }
 
@@ -139,6 +139,7 @@ const objects = [
     createPyramid([1.0, -10.0, 0.0]),
 
     createPyramid([1.0, -1.0, 0.0]),
+    
     createTerrain([2.0, 0.0, 0.0], 5.0)
 ];
 
