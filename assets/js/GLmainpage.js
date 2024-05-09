@@ -139,7 +139,6 @@ const objects = [
     createPyramid([1.0, -10.0, 0.0]),
 
     createPyramid([1.0, -1.0, 0.0]),
-    
     createTerrain([2.0, 0.0, 0.0], 5.0)
 ];
 
